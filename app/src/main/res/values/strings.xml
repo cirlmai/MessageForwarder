@@ -1,0 +1,148 @@
+<resources>
+    <string name="app_name">Message Forwarder</string>
+    <string name="notification_channel_name">Forwarding status</string>
+    <string name="notification_channel_description">Alerts for failed SMS forwarding attempts</string>
+    <string name="notification_title_forwarding_failed">SMS forwarding failed</string>
+    <string name="notification_text_forwarding_failed">%1$s: %2$s</string>
+
+    <string name="permission_sms_access">SMS access</string>
+    <string name="permission_notifications">Notifications</string>
+
+    <string name="common_unknown_sender">Unknown sender</string>
+    <string name="common_empty">(empty)</string>
+    <string name="common_never">Never</string>
+    <string name="common_yes">Yes</string>
+    <string name="common_no">No</string>
+    <string name="common_ready">Ready</string>
+    <string name="common_optional">Optional</string>
+    <string name="common_required">Required</string>
+
+    <string name="field_additional_headers">Additional headers</string>
+    <string name="field_additional_payload">Additional payload</string>
+
+    <string name="error_api_url_required">API URL is required.</string>
+    <string name="error_api_url_https">API URL must use HTTPS.</string>
+    <string name="error_bearer_token_required">Bearer token header is enabled, but the token is empty.</string>
+    <string name="error_json_object">%1$s must be a JSON object.</string>
+    <string name="error_http_status">Server returned HTTP %1$d</string>
+    <string name="error_network_request_failed">Network request failed.</string>
+    <string name="worker_error_forwarding_disabled_or_incomplete">Forwarding is disabled or API settings are incomplete.</string>
+    <string name="log_retry_queued">Queued for retry.</string>
+
+    <string name="message_settings_saved">Settings saved.</string>
+    <string name="message_forwarding_sync_scheduled">Forwarding sync scheduled.</string>
+    <string name="message_requeued">Message requeued.</string>
+    <string name="message_requeue_failed">Could not requeue that message.</string>
+    <string name="message_connection_test_body">Connectivity test from Message Forwarder</string>
+    <string name="message_connection_test_succeeded">Connection test succeeded (HTTP %1$d).</string>
+    <string name="message_connection_test_failed">Connection test failed: %1$s</string>
+    <string name="message_permission_granted">%1$s granted.</string>
+    <string name="message_permission_denied">%1$s not granted.</string>
+
+    <string name="nav_setup">Setup</string>
+    <string name="nav_status">Status</string>
+    <string name="nav_logs">Logs</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_health">Health</string>
+
+    <string name="title_app">Message Forwarder</string>
+    <string name="subtitle_setup_required">Setup still required</string>
+    <string name="subtitle_background_ready">Background forwarding ready</string>
+
+    <string name="setup_title">Prepare the device for background forwarding</string>
+    <string name="setup_subtitle">The app only forwards new SMS messages received after setup completes.</string>
+    <string name="setup_step_sms_title">1. SMS permission</string>
+    <string name="setup_step_sms_description">Required to receive new SMS broadcasts while the app stays in the background.</string>
+    <string name="setup_step_endpoint_title">2. HTTPS endpoint</string>
+    <string name="setup_step_endpoint_description">Enter the API URL, HTTP method, and any optional headers or JSON payload before forwarding starts.</string>
+    <string name="setup_step_forwarding_title">3. Forwarding switch</string>
+    <string name="setup_step_forwarding_description">The receiver ignores incoming messages until the forwarding switch is enabled.</string>
+    <string name="setup_step_battery_title">4. Battery policy</string>
+    <string name="setup_step_battery_description">For company-managed phones, disable battery optimization and allow auto-start for better delivery reliability.</string>
+    <string name="setup_step_notifications_title">5. Notifications</string>
+    <string name="setup_step_notifications_description">Optional on Android 13+. Enables retry failure alerts if the API rejects or times out.</string>
+
+    <string name="action_grant_sms_access">Grant SMS access</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="action_enable_forwarding">Enable forwarding</string>
+    <string name="action_open_battery_settings">Open battery settings</string>
+    <string name="action_enable_notifications">Enable notifications</string>
+    <string name="action_sync_now">Sync now</string>
+    <string name="action_save_settings">Save settings</string>
+    <string name="action_test_connection">Test connection</string>
+    <string name="action_testing">Testing...</string>
+    <string name="action_retry_delivery">Retry delivery</string>
+    <string name="action_open_notification_settings">Open notification settings</string>
+    <string name="action_open_app_details">Open app details</string>
+
+    <string name="api_health_configuration_missing">Configuration missing</string>
+    <string name="api_health_retry_pending">Retry pending</string>
+    <string name="api_health_recently_healthy">Recently healthy</string>
+    <string name="api_health_waiting_first_delivery">Waiting for first delivery</string>
+
+    <string name="status_title_ready">Receiver active and listening for new SMS</string>
+    <string name="status_title_action_required">Action required before forwarding can run</string>
+    <string name="status_subtitle_summary">Queued items: %1$d  •  API: %2$s</string>
+    <string name="metric_queue">Queue</string>
+    <string name="metric_last_delivered">Last delivered</string>
+    <string name="status_latest_sms_title">Latest SMS</string>
+    <string name="status_latest_sms_none">No message received yet</string>
+    <string name="status_latest_sms_waiting">Waiting for the first incoming SMS after setup.</string>
+    <string name="status_forwarding_on">Forwarding on</string>
+    <string name="status_forwarding_off">Forwarding off</string>
+    <string name="status_sms_access_ready">SMS access ready</string>
+    <string name="status_sms_access_missing">SMS access missing</string>
+    <string name="status_actions_title">Actions</string>
+    <string name="status_actions_primary">Use sync to flush the queue after network recovery or settings changes.</string>
+    <string name="status_actions_secondary">Messages stay in the local queue until the API returns HTTP 2xx.</string>
+
+    <string name="settings_title">Flexible HTTP configuration</string>
+    <string name="settings_subtitle">Choose the method, optionally attach Authorization, and append custom headers or JSON fields per request.</string>
+    <string name="settings_api_url_label">HTTPS API URL</string>
+    <string name="settings_api_url_placeholder">https://api.example.com/inbox/sms</string>
+    <string name="settings_http_method_label">HTTP method</string>
+    <string name="settings_authorization_label">Authorization header</string>
+    <string name="settings_authorization_description">When enabled, the app sends Authorization: Bearer &lt;token&gt;.</string>
+    <string name="settings_bearer_token_label">Bearer token</string>
+    <string name="settings_hide_token">Hide token</string>
+    <string name="settings_show_token">Show token</string>
+    <string name="settings_additional_headers_label">Additional headers JSON</string>
+    <string name="settings_additional_headers_placeholder">{&quot;X-Client&quot;:&quot;mobile&quot;,&quot;X-Trace&quot;:&quot;sms-forwarder&quot;}</string>
+    <string name="settings_additional_payload_label">Additional payload JSON</string>
+    <string name="settings_additional_payload_placeholder">{&quot;username&quot;:&quot;demo-bot&quot;,&quot;channel&quot;:&quot;demo-channel-id&quot;,&quot;text&quot;:&quot;{{body}}&quot;}</string>
+    <string name="settings_payload_with_body_description">Core SMS fields are always included. Extra payload JSON is merged into the same root object and can override keys. Use templates like {{body}}, {{sender}}, {{messageId}}.</string>
+    <string name="settings_payload_get_description">GET requests skip the JSON body. Additional payload JSON is ignored for this method.</string>
+    <string name="settings_forwarding_enabled_label">Forwarding enabled</string>
+    <string name="settings_forwarding_enabled_description">Receiver only enqueues messages while this switch is on.</string>
+
+    <string name="logs_empty">No SMS has been received since installation or permission grant.</string>
+    <string name="logs_retries_chip">Retries %1$d</string>
+    <string name="logs_sim_chip">SIM %1$d</string>
+    <string name="logs_http_chip">HTTP %1$d</string>
+
+    <string name="health_title">System health and deployment checks</string>
+    <string name="health_subtitle">This tool is intended for managed or enterprise-installed devices, not public Play Store distribution.</string>
+    <string name="health_sms_permission_title">SMS permission</string>
+    <string name="health_sms_permission_description">Required for SMS_RECEIVED broadcast delivery.</string>
+    <string name="health_notification_permission_title">Notification permission</string>
+    <string name="health_notification_permission_description">Optional. Allows failure notifications for API errors or timeouts.</string>
+    <string name="health_battery_title">Battery optimization</string>
+    <string name="health_battery_description">Company-managed phones should whitelist the app from battery optimization and auto-start limits.</string>
+    <string name="health_environment_title">Environment</string>
+    <string name="health_app_version">App version</string>
+    <string name="health_android_id">Android ID</string>
+    <string name="health_api_configured">API configured</string>
+    <string name="health_http_method">HTTP method</string>
+    <string name="health_authorization">Authorization</string>
+    <string name="health_authorization_enabled">Bearer header enabled</string>
+    <string name="health_authorization_not_used">Not used</string>
+    <string name="health_last_boot_restore">Last boot restore</string>
+    <string name="health_status_ready">Status: ready</string>
+    <string name="health_status_optional">Status: optional but recommended</string>
+    <string name="health_status_action_needed">Status: action needed</string>
+
+    <string name="delivery_status_received">Received</string>
+    <string name="delivery_status_sending">Sending</string>
+    <string name="delivery_status_delivered">Delivered</string>
+    <string name="delivery_status_failed">Failed</string>
+</resources>

@@ -1,0 +1,148 @@
+<resources>
+    <string name="app_name">簡訊轉傳器</string>
+    <string name="notification_channel_name">轉傳狀態</string>
+    <string name="notification_channel_description">簡訊轉傳失敗時的提醒通知</string>
+    <string name="notification_title_forwarding_failed">簡訊轉傳失敗</string>
+    <string name="notification_text_forwarding_failed">%1$s：%2$s</string>
+
+    <string name="permission_sms_access">簡訊權限</string>
+    <string name="permission_notifications">通知權限</string>
+
+    <string name="common_unknown_sender">未知寄件人</string>
+    <string name="common_empty">（空白）</string>
+    <string name="common_never">從未</string>
+    <string name="common_yes">是</string>
+    <string name="common_no">否</string>
+    <string name="common_ready">已就緒</string>
+    <string name="common_optional">可選</string>
+    <string name="common_required">必要</string>
+
+    <string name="field_additional_headers">額外 Headers</string>
+    <string name="field_additional_payload">額外 Payload</string>
+
+    <string name="error_api_url_required">必須填寫 API URL。</string>
+    <string name="error_api_url_https">API URL 必須使用 HTTPS。</string>
+    <string name="error_bearer_token_required">已啟用 Bearer Token Header，但 Token 為空。</string>
+    <string name="error_json_object">%1$s 必須是 JSON 物件。</string>
+    <string name="error_http_status">伺服器回傳 HTTP %1$d</string>
+    <string name="error_network_request_failed">網路請求失敗。</string>
+    <string name="worker_error_forwarding_disabled_or_incomplete">轉傳功能已停用，或 API 設定尚未完成。</string>
+    <string name="log_retry_queued">已加入重試佇列。</string>
+
+    <string name="message_settings_saved">設定已儲存。</string>
+    <string name="message_forwarding_sync_scheduled">已安排轉傳同步。</string>
+    <string name="message_requeued">訊息已重新加入佇列。</string>
+    <string name="message_requeue_failed">無法重新加入該訊息。</string>
+    <string name="message_connection_test_body">來自簡訊轉傳器的連線測試</string>
+    <string name="message_connection_test_succeeded">連線測試成功（HTTP %1$d）。</string>
+    <string name="message_connection_test_failed">連線測試失敗：%1$s</string>
+    <string name="message_permission_granted">%1$s已授權。</string>
+    <string name="message_permission_denied">%1$s未授權。</string>
+
+    <string name="nav_setup">啟用導引</string>
+    <string name="nav_status">狀態</string>
+    <string name="nav_logs">紀錄</string>
+    <string name="nav_settings">設定</string>
+    <string name="nav_health">健康</string>
+
+    <string name="title_app">簡訊轉傳器</string>
+    <string name="subtitle_setup_required">仍需完成設定</string>
+    <string name="subtitle_background_ready">背景轉傳已就緒</string>
+
+    <string name="setup_title">讓裝置完成背景轉傳準備</string>
+    <string name="setup_subtitle">App 只會轉傳完成設定後收到的新簡訊。</string>
+    <string name="setup_step_sms_title">1. 簡訊權限</string>
+    <string name="setup_step_sms_description">背景接收新簡訊廣播所需的必要權限。</string>
+    <string name="setup_step_endpoint_title">2. HTTPS 端點</string>
+    <string name="setup_step_endpoint_description">開始轉傳前，請先設定 API URL、HTTP method，以及可選的 headers 或 JSON payload。</string>
+    <string name="setup_step_forwarding_title">3. 轉傳開關</string>
+    <string name="setup_step_forwarding_description">開關開啟前，receiver 會忽略新進簡訊。</string>
+    <string name="setup_step_battery_title">4. 電池策略</string>
+    <string name="setup_step_battery_description">公司管理裝置建議關閉電池最佳化並允許自啟，以提高轉送穩定性。</string>
+    <string name="setup_step_notifications_title">5. 通知</string>
+    <string name="setup_step_notifications_description">Android 13+ 可選。當 API 拒絕或逾時時可顯示重試失敗提醒。</string>
+
+    <string name="action_grant_sms_access">授予簡訊權限</string>
+    <string name="action_open_settings">開啟設定</string>
+    <string name="action_enable_forwarding">啟用轉傳</string>
+    <string name="action_open_battery_settings">開啟電池設定</string>
+    <string name="action_enable_notifications">啟用通知</string>
+    <string name="action_sync_now">立即同步</string>
+    <string name="action_save_settings">儲存設定</string>
+    <string name="action_test_connection">測試連線</string>
+    <string name="action_testing">測試中...</string>
+    <string name="action_retry_delivery">重新轉送</string>
+    <string name="action_open_notification_settings">開啟通知設定</string>
+    <string name="action_open_app_details">開啟 App 詳細資料</string>
+
+    <string name="api_health_configuration_missing">設定未完成</string>
+    <string name="api_health_retry_pending">等待重試</string>
+    <string name="api_health_recently_healthy">最近連線正常</string>
+    <string name="api_health_waiting_first_delivery">等待首次送達</string>
+
+    <string name="status_title_ready">Receiver 已啟用，正在等待新簡訊</string>
+    <string name="status_title_action_required">完成必要設定後才能開始轉傳</string>
+    <string name="status_subtitle_summary">待送 %1$d 筆  •  API：%2$s</string>
+    <string name="metric_queue">佇列</string>
+    <string name="metric_last_delivered">最近送達</string>
+    <string name="status_latest_sms_title">最新簡訊</string>
+    <string name="status_latest_sms_none">尚未收到任何簡訊</string>
+    <string name="status_latest_sms_waiting">等待完成設定後的第一封新簡訊。</string>
+    <string name="status_forwarding_on">轉傳已開啟</string>
+    <string name="status_forwarding_off">轉傳已關閉</string>
+    <string name="status_sms_access_ready">簡訊權限已就緒</string>
+    <string name="status_sms_access_missing">缺少簡訊權限</string>
+    <string name="status_actions_title">操作</string>
+    <string name="status_actions_primary">在網路恢復或設定更新後，可手動同步佇列。</string>
+    <string name="status_actions_secondary">訊息會保留在本機佇列，直到 API 回傳 HTTP 2xx。</string>
+
+    <string name="settings_title">彈性 HTTP 設定</string>
+    <string name="settings_subtitle">可選擇 method，決定是否帶入 Authorization，並追加自訂 headers 或 JSON 欄位。</string>
+    <string name="settings_api_url_label">HTTPS API URL</string>
+    <string name="settings_api_url_placeholder">https://api.example.com/inbox/sms</string>
+    <string name="settings_http_method_label">HTTP 方法</string>
+    <string name="settings_authorization_label">Authorization Header</string>
+    <string name="settings_authorization_description">啟用後，App 會送出 Authorization: Bearer &lt;token&gt;。</string>
+    <string name="settings_bearer_token_label">Bearer Token</string>
+    <string name="settings_hide_token">隱藏 Token</string>
+    <string name="settings_show_token">顯示 Token</string>
+    <string name="settings_additional_headers_label">額外 Headers JSON</string>
+    <string name="settings_additional_headers_placeholder">{&quot;X-Client&quot;:&quot;mobile&quot;,&quot;X-Trace&quot;:&quot;sms-forwarder&quot;}</string>
+    <string name="settings_additional_payload_label">額外 Payload JSON</string>
+    <string name="settings_additional_payload_placeholder">{&quot;username&quot;:&quot;demo-bot&quot;,&quot;channel&quot;:&quot;demo-channel-id&quot;,&quot;text&quot;:&quot;{{body}}&quot;}</string>
+    <string name="settings_payload_with_body_description">系統會先帶入核心 SMS 欄位，再把額外 payload JSON 合併到同一層物件中；若 key 重複，會以你填的值覆蓋。可使用 {{body}}、{{sender}}、{{messageId}} 等模板。</string>
+    <string name="settings_payload_get_description">GET 不會送 JSON body，額外 payload JSON 也會被忽略。</string>
+    <string name="settings_forwarding_enabled_label">啟用轉傳</string>
+    <string name="settings_forwarding_enabled_description">只有在此開關開啟時，receiver 才會把新簡訊加入佇列。</string>
+
+    <string name="logs_empty">自安裝完成或授權後，尚未收到任何簡訊。</string>
+    <string name="logs_retries_chip">重試 %1$d 次</string>
+    <string name="logs_sim_chip">SIM %1$d</string>
+    <string name="logs_http_chip">HTTP %1$d</string>
+
+    <string name="health_title">系統健康與部署檢查</string>
+    <string name="health_subtitle">此工具適用於企業安裝或受管理裝置，不適用於公開 Play 商店發佈。</string>
+    <string name="health_sms_permission_title">簡訊權限</string>
+    <string name="health_sms_permission_description">SMS_RECEIVED 廣播送達所需的必要權限。</string>
+    <string name="health_notification_permission_title">通知權限</string>
+    <string name="health_notification_permission_description">可選。用於 API 錯誤或逾時時顯示失敗通知。</string>
+    <string name="health_battery_title">電池最佳化</string>
+    <string name="health_battery_description">公司管理裝置建議將 App 加入白名單，避免電池最佳化與自啟限制影響。</string>
+    <string name="health_environment_title">環境資訊</string>
+    <string name="health_app_version">App 版本</string>
+    <string name="health_android_id">Android ID</string>
+    <string name="health_api_configured">API 已設定</string>
+    <string name="health_http_method">HTTP 方法</string>
+    <string name="health_authorization">Authorization</string>
+    <string name="health_authorization_enabled">已啟用 Bearer Header</string>
+    <string name="health_authorization_not_used">未使用</string>
+    <string name="health_last_boot_restore">最近開機恢復</string>
+    <string name="health_status_ready">狀態：已就緒</string>
+    <string name="health_status_optional">狀態：可選，但建議開啟</string>
+    <string name="health_status_action_needed">狀態：需要處理</string>
+
+    <string name="delivery_status_received">已接收</string>
+    <string name="delivery_status_sending">傳送中</string>
+    <string name="delivery_status_delivered">已送達</string>
+    <string name="delivery_status_failed">失敗</string>
+</resources>
