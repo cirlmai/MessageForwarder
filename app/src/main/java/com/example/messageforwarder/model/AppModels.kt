@@ -3,7 +3,7 @@ package com.example.messageforwarder.model
 import com.example.messageforwarder.data.local.DeliveryLogEntity
 
 /**
- * Supported request methods for the outbound webhook.
+ * 轉發 API 目前支援的 HTTP 方法。
  */
 enum class HttpMethod(val supportsRequestBody: Boolean) {
     POST(true),
@@ -13,7 +13,7 @@ enum class HttpMethod(val supportsRequestBody: Boolean) {
 }
 
 /**
- * Persisted operator-controlled settings that define how messages are forwarded.
+ * 由操作人員在 App 內維護，並決定簡訊如何轉傳的設定集合。
  */
 data class ForwarderSettings(
     val apiUrl: String = "",
@@ -22,6 +22,8 @@ data class ForwarderSettings(
     val bearerToken: String = "",
     val additionalHeadersJson: String = "",
     val additionalPayloadJson: String = "",
+    val allowedSendersRaw: String = "",
+    val requiredKeywordsRaw: String = "",
     val appEnabled: Boolean = false,
     val lastBootRestoreAt: Long? = null,
 ) {
@@ -36,7 +38,7 @@ data class ForwarderSettings(
 }
 
 /**
- * Internal normalized SMS event used everywhere after the Android broadcast is parsed.
+ * Android 廣播被解析後，App 內部統一使用的標準化簡訊事件。
  */
 data class ReceivedSmsEvent(
     val messageId: String,
@@ -50,7 +52,7 @@ data class ReceivedSmsEvent(
 )
 
 /**
- * Payload eventually sent to the remote API after optional template expansion.
+ * 套用模板替換後，最終要送到遠端 API 的 payload 模型。
  */
 data class ForwardRequestPayload(
     val messageId: String,
@@ -65,7 +67,7 @@ data class ForwardRequestPayload(
 )
 
 /**
- * Small dashboard aggregate so the status screen does not compose multiple flows itself.
+ * 首頁狀態卡需要的聚合資料，避免畫面層自行組合多條 Flow。
  */
 data class DashboardSnapshot(
     val pendingCount: Int = 0,

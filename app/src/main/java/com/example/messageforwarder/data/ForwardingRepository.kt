@@ -14,11 +14,13 @@ import com.example.messageforwarder.model.DashboardSnapshot
 import com.example.messageforwarder.model.ForwardRequestPayload
 import com.example.messageforwarder.model.ForwarderSettings
 import com.example.messageforwarder.model.ReceivedSmsEvent
+import com.example.messageforwarder.util.ForwardingRuleMatcher
+import com.example.messageforwarder.util.ForwardingRuleMismatch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 /**
- * Centralizes queue mutations so the worker and receivers cannot drift on delivery state rules.
+ * 集中管理佇列與送達紀錄的異動，避免 worker 與 receiver 對狀態規則各自為政。
  */
 class ForwardingRepository(
     private val appContext: Context,
@@ -56,15 +58,35 @@ class ForwardingRepository(
         settingsStore.markBootRestore(timestamp)
     }
 
-    suspend fun enqueueIncomingMessage(event: ReceivedSmsEvent): Boolean = database.withTransaction {
-        // Once a fingerprint exists in the log table, the broadcast was already accepted.
+    suspend fun enqueueIncomingMessage(
+        event: ReceivedSmsEvent,
+        settings: ForwarderSettings,
+    ): Boolean = database.withTransaction {
+        // 只要紀錄表內已有相同 fingerprint，就代表這封簡訊先前已被接受處理。
         if (deliveryLogDao.getByFingerprint(event.messageId) != null) {
             return@withTransaction false
         }
 
-        deliveryLogDao.insert(event.toDeliveryLog())
-        pendingDao.insert(event.toPendingForward())
-        true
+        val ruleDecision = ForwardingRuleMatcher.evaluate(
+            sender = event.sender,
+            body = event.body,
+            allowedSendersRaw = settings.allowedSendersRaw,
+            requiredKeywordsRaw = settings.requiredKeywordsRaw,
+        )
+        deliveryLogDao.insert(
+            event.toDeliveryLog(
+                status = if (ruleDecision.shouldForward) {
+                    DeliveryStatus.RECEIVED
+                } else {
+                    DeliveryStatus.FILTERED
+                },
+                lastError = ruleDecision.mismatch?.toMessage(),
+            ),
+        )
+        if (ruleDecision.shouldForward) {
+            pendingDao.insert(event.toPendingForward())
+        }
+        ruleDecision.shouldForward
     }
 
     suspend fun getNextPendingForward(): PendingForwardEntity? = pendingDao.getNext()
@@ -143,18 +165,17 @@ class ForwardingRepository(
         }
     }
 
-    suspend fun requeueFailedMessage(messageFingerprint: String): Boolean = database.withTransaction {
+    suspend fun queueMessageForResend(messageFingerprint: String): Boolean = database.withTransaction {
         val currentLog = deliveryLogDao.getByFingerprint(messageFingerprint) ?: return@withTransaction false
+        if (currentLog.status != DeliveryStatus.FAILED) {
+            if (currentLog.status == DeliveryStatus.FILTERED) {
+                return@withTransaction false
+            }
+        }
         if (pendingDao.getByFingerprint(messageFingerprint) == null) {
-            // Manual retry recreates the queue item from the delivery log snapshot.
+            // 人工補送時，必要時可直接用歷程紀錄快照重建待送佇列項目。
             pendingDao.insert(currentLog.toPendingForward())
         }
-        deliveryLogDao.update(
-            currentLog.copy(
-                status = DeliveryStatus.FAILED,
-                lastError = currentLog.lastError ?: appContext.getString(R.string.log_retry_queued),
-            ),
-        )
         true
     }
 
@@ -174,7 +195,10 @@ class ForwardingRepository(
         appVersion = appVersion,
     )
 
-    private fun ReceivedSmsEvent.toDeliveryLog(): DeliveryLogEntity = DeliveryLogEntity(
+    private fun ReceivedSmsEvent.toDeliveryLog(
+        status: DeliveryStatus,
+        lastError: String? = null,
+    ): DeliveryLogEntity = DeliveryLogEntity(
         messageFingerprint = messageId,
         sender = sender,
         body = body,
@@ -183,7 +207,8 @@ class ForwardingRepository(
         simSlot = simSlot,
         deviceId = deviceId,
         appVersion = appVersion,
-        status = DeliveryStatus.RECEIVED,
+        status = status,
+        lastError = lastError,
     )
 
     private fun DeliveryLogEntity.toPendingForward(): PendingForwardEntity = PendingForwardEntity(
@@ -199,4 +224,15 @@ class ForwardingRepository(
         lastAttemptAt = lastAttemptAt,
         lastError = lastError,
     )
+
+    private fun ForwardingRuleMismatch.toMessage(): String = when (this) {
+        ForwardingRuleMismatch.SENDER ->
+            appContext.getString(R.string.log_filtered_sender_mismatch)
+
+        ForwardingRuleMismatch.KEYWORD ->
+            appContext.getString(R.string.log_filtered_keyword_mismatch)
+
+        ForwardingRuleMismatch.SENDER_AND_KEYWORD ->
+            appContext.getString(R.string.log_filtered_sender_and_keyword_mismatch)
+    }
 }

@@ -28,11 +28,14 @@
     <string name="error_network_request_failed">Network request failed.</string>
     <string name="worker_error_forwarding_disabled_or_incomplete">Forwarding is disabled or API settings are incomplete.</string>
     <string name="log_retry_queued">Queued for retry.</string>
+    <string name="log_filtered_sender_mismatch">Not forwarded: sender does not match the configured sender rules.</string>
+    <string name="log_filtered_keyword_mismatch">Not forwarded: message body does not contain the configured keywords.</string>
+    <string name="log_filtered_sender_and_keyword_mismatch">Not forwarded: sender and message body both failed the forwarding rules.</string>
 
     <string name="message_settings_saved">Settings saved.</string>
     <string name="message_forwarding_sync_scheduled">Forwarding sync scheduled.</string>
-    <string name="message_requeued">Message requeued.</string>
-    <string name="message_requeue_failed">Could not requeue that message.</string>
+    <string name="message_requeued">Message queued for resend.</string>
+    <string name="message_requeue_failed">This message cannot be queued for resend.</string>
     <string name="message_connection_test_body">Connectivity test from Message Forwarder</string>
     <string name="message_connection_test_succeeded">Connection test succeeded (HTTP %1$d).</string>
     <string name="message_connection_test_failed">Connection test failed: %1$s</string>
@@ -71,7 +74,9 @@
     <string name="action_save_settings">Save settings</string>
     <string name="action_test_connection">Test connection</string>
     <string name="action_testing">Testing...</string>
-    <string name="action_retry_delivery">Retry delivery</string>
+    <string name="action_retry_delivery">Send again</string>
+    <string name="action_show_full_sms">Show full SMS</string>
+    <string name="action_hide_full_sms">Hide full SMS</string>
     <string name="action_open_notification_settings">Open notification settings</string>
     <string name="action_open_app_details">Open app details</string>
 
@@ -112,6 +117,14 @@
     <string name="settings_additional_payload_placeholder">{&quot;username&quot;:&quot;demo-bot&quot;,&quot;channel&quot;:&quot;demo-channel-id&quot;,&quot;text&quot;:&quot;{{body}}&quot;}</string>
     <string name="settings_payload_with_body_description">Core SMS fields are always included. Extra payload JSON is merged into the same root object and can override keys. Use templates like {{body}}, {{sender}}, {{messageId}}.</string>
     <string name="settings_payload_get_description">GET requests skip the JSON body. Additional payload JSON is ignored for this method.</string>
+    <string name="settings_rules_title">Forwarding rules</string>
+    <string name="settings_rules_description">Leave both fields empty to forward every SMS. If both are configured, the message must match both rules before it is forwarded.</string>
+    <string name="settings_allowed_senders_label">Allowed sender numbers or names</string>
+    <string name="settings_allowed_senders_placeholder">+886912345678\nMyBank</string>
+    <string name="settings_allowed_senders_help">Optional. Match exact senders only. Enter one sender per line, or separate entries with commas.</string>
+    <string name="settings_keywords_label">Content keywords</string>
+    <string name="settings_keywords_placeholder">OTP\nverification code</string>
+    <string name="settings_keywords_help">Optional. Forward when the message body contains any configured keyword. Matching is case-insensitive.</string>
     <string name="settings_forwarding_enabled_label">Forwarding enabled</string>
     <string name="settings_forwarding_enabled_description">Receiver only enqueues messages while this switch is on.</string>
 
@@ -145,4 +158,5 @@
     <string name="delivery_status_sending">Sending</string>
     <string name="delivery_status_delivered">Delivered</string>
     <string name="delivery_status_failed">Failed</string>
+    <string name="delivery_status_filtered">Filtered</string>
 </resources>

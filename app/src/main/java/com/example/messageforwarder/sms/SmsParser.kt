@@ -10,7 +10,7 @@ import com.example.messageforwarder.util.DeviceMetadata
 import com.example.messageforwarder.util.SmsFingerprint
 
 /**
- * Converts Android's PDU-based SMS broadcast into one normalized app event.
+ * 將 Android 的 PDU 簡訊廣播轉成 App 內統一使用的事件模型。
  */
 object SmsParser {
     fun fromIntent(context: Context, intent: Intent): ReceivedSmsEvent? {
@@ -30,7 +30,7 @@ object SmsParser {
             ?.getInt(SubscriptionManager.EXTRA_SUBSCRIPTION_INDEX, SubscriptionManager.INVALID_SUBSCRIPTION_ID)
             ?.takeIf { it != SubscriptionManager.INVALID_SUBSCRIPTION_ID }
         val simSlot = when {
-            // Dual-SIM devices expose the broadcast with subscription metadata when available.
+            // 雙 SIM 裝置若有帶訂閱資訊，就優先從廣播 metadata 推算卡槽位置。
             subscriptionId != null -> SubscriptionManager.getSlotIndex(subscriptionId).takeIf { it >= 0 }
             else -> intent.extras?.getInt(SubscriptionManager.EXTRA_SLOT_INDEX, -1)?.takeIf { it >= 0 }
         }

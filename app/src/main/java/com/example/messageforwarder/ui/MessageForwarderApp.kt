@@ -89,6 +89,9 @@ import com.example.messageforwarder.util.AppTimeFormatter
 import com.example.messageforwarder.util.DeviceMetadata
 import com.example.messageforwarder.util.MessageMasker
 
+/**
+ * App 內主要頁面目的地，供導覽列與內容區同步切換。
+ */
 private enum class AppDestination(
     @StringRes val labelRes: Int,
     val icon: ImageVector,
@@ -100,6 +103,9 @@ private enum class AppDestination(
     HEALTH(R.string.nav_health, Icons.Outlined.HealthAndSafety),
 }
 
+/**
+ * 系統健康頁與啟用導引頁共用的裝置狀態快照。
+ */
 private data class SystemHealthSnapshot(
     val smsPermissionGranted: Boolean,
     val notificationsGranted: Boolean,
@@ -108,6 +114,9 @@ private data class SystemHealthSnapshot(
     val deviceId: String,
 )
 
+/**
+ * 單 Activity App 的頂層 Compose 入口，負責導覽、Snackbar 與各頁面切換。
+ */
 @Composable
 fun MessageForwarderApp(
     viewModel: MainViewModel,
@@ -138,7 +147,7 @@ fun MessageForwarderApp(
         }
     }
 
-    // The scaffold stays fixed while each destination swaps only the content pane.
+    // 外層骨架固定不動，只切換內容區，讓導覽與頂欄維持穩定。
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestination.entries.forEach { destination ->
@@ -237,6 +246,9 @@ fun MessageForwarderApp(
     }
 }
 
+/**
+ * 初次啟用導引頁，帶使用者完成權限、API 設定與背景運作準備。
+ */
 @Composable
 private fun SetupScreen(
     settings: ForwarderSettings,
@@ -298,6 +310,9 @@ private fun SetupScreen(
     }
 }
 
+/**
+ * 狀態總覽頁，集中顯示目前轉送健康度、最近活動與快速操作。
+ */
 @Composable
 private fun StatusScreen(
     uiState: MainUiState,
@@ -386,6 +401,9 @@ private fun StatusScreen(
     }
 }
 
+/**
+ * API、規則與轉送開關的主要設定頁。
+ */
 @Composable
 private fun SettingsScreen(
     currentSettings: ForwarderSettings,
@@ -403,6 +421,12 @@ private fun SettingsScreen(
     var additionalPayloadJson by remember(currentSettings.additionalPayloadJson) {
         mutableStateOf(currentSettings.additionalPayloadJson)
     }
+    var allowedSendersRaw by remember(currentSettings.allowedSendersRaw) {
+        mutableStateOf(currentSettings.allowedSendersRaw)
+    }
+    var requiredKeywordsRaw by remember(currentSettings.requiredKeywordsRaw) {
+        mutableStateOf(currentSettings.requiredKeywordsRaw)
+    }
     var appEnabled by remember(currentSettings.appEnabled) { mutableStateOf(currentSettings.appEnabled) }
     var tokenVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -413,6 +437,8 @@ private fun SettingsScreen(
         bearerToken = currentSettings.bearerToken
         additionalHeadersJson = currentSettings.additionalHeadersJson
         additionalPayloadJson = currentSettings.additionalPayloadJson
+        allowedSendersRaw = currentSettings.allowedSendersRaw
+        requiredKeywordsRaw = currentSettings.requiredKeywordsRaw
         appEnabled = currentSettings.appEnabled
     }
 
@@ -423,6 +449,8 @@ private fun SettingsScreen(
         bearerToken = bearerToken,
         additionalHeadersJson = additionalHeadersJson,
         additionalPayloadJson = additionalPayloadJson,
+        allowedSendersRaw = allowedSendersRaw,
+        requiredKeywordsRaw = requiredKeywordsRaw,
         appEnabled = appEnabled,
         lastBootRestoreAt = currentSettings.lastBootRestoreAt,
     )
@@ -536,6 +564,42 @@ private fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Text(
+                    text = stringResource(R.string.settings_rules_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = stringResource(R.string.settings_rules_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = allowedSendersRaw,
+                    onValueChange = { allowedSendersRaw = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.settings_allowed_senders_label)) },
+                    placeholder = { Text(stringResource(R.string.settings_allowed_senders_placeholder)) },
+                    minLines = 3,
+                )
+                Text(
+                    text = stringResource(R.string.settings_allowed_senders_help),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = requiredKeywordsRaw,
+                    onValueChange = { requiredKeywordsRaw = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.settings_keywords_label)) },
+                    placeholder = { Text(stringResource(R.string.settings_keywords_placeholder)) },
+                    minLines = 3,
+                )
+                Text(
+                    text = stringResource(R.string.settings_keywords_help),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -576,6 +640,9 @@ private fun SettingsScreen(
     }
 }
 
+/**
+ * 顯示所有簡訊處理紀錄，並提供顯示全文與人工再次發送。
+ */
 @Composable
 private fun LogsScreen(
     logs: List<DeliveryLogEntity>,
@@ -604,6 +671,8 @@ private fun LogsScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(logs, key = { it.messageFingerprint }) { log ->
+            var revealBody by rememberSaveable(log.messageFingerprint) { mutableStateOf(false) }
+            val canSendAgain = log.status != DeliveryStatus.FILTERED && log.status != DeliveryStatus.SENDING
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             ) {
@@ -627,7 +696,7 @@ private fun LogsScreen(
                         StatusChip(log.status)
                     }
                     Text(
-                        MessageMasker.maskSmsBody(log.body, emptyLabel),
+                        if (revealBody) log.body else MessageMasker.maskSmsBody(log.body, emptyLabel),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     FlowRow(
@@ -654,14 +723,29 @@ private fun LogsScreen(
                     if (!log.lastError.isNullOrBlank()) {
                         Text(
                             text = log.lastError,
-                            color = MaterialTheme.colorScheme.error,
+                            color = if (log.status == DeliveryStatus.FILTERED) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
-                    if (log.status != DeliveryStatus.DELIVERED) {
-                        // Manual retry is useful when operators fix credentials or the server recovers.
-                        OutlinedButton(onClick = { onRetry(log.messageFingerprint) }) {
-                            Text(stringResource(R.string.action_retry_delivery))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        if (canSendAgain) {
+                            // 人工補送可把歷史紀錄重新推回待送佇列。
+                            OutlinedButton(onClick = { onRetry(log.messageFingerprint) }) {
+                                Text(stringResource(R.string.action_retry_delivery))
+                            }
+                        }
+                        OutlinedButton(onClick = { revealBody = !revealBody }) {
+                            Text(
+                                if (revealBody) {
+                                    stringResource(R.string.action_hide_full_sms)
+                                } else {
+                                    stringResource(R.string.action_show_full_sms)
+                                },
+                            )
                         }
                     }
                 }
@@ -670,6 +754,9 @@ private fun LogsScreen(
     }
 }
 
+/**
+ * 裝置健康頁，集中檢查權限、通知、電池最佳化與環境資訊。
+ */
 @Composable
 private fun HealthScreen(
     settings: ForwarderSettings,
@@ -761,6 +848,9 @@ private fun HealthScreen(
     }
 }
 
+/**
+ * 各頁面共用的視覺主標卡，提供一致的品牌氛圍。
+ */
 @Composable
 private fun HeroCard(
     title: String,
@@ -802,6 +892,9 @@ private fun HeroCard(
     }
 }
 
+/**
+ * 啟用流程中的單一步驟卡片，可標記是否完成與是否為選配項目。
+ */
 @Composable
 private fun SetupStepCard(
     title: String,
@@ -860,6 +953,9 @@ private fun SetupStepCard(
     }
 }
 
+/**
+ * 狀態頁使用的關鍵數值卡片。
+ */
 @Composable
 private fun MetricCard(
     label: String,
@@ -885,11 +981,17 @@ private fun MetricCard(
     }
 }
 
+/**
+ * 狀態詳情卡內的按鈕模型，避免把文字與點擊事件拆成多個平行參數。
+ */
 private data class ScreenAction(
     val label: String,
     val onClick: () -> Unit,
 )
 
+/**
+ * 狀態頁用的文字詳情卡，可帶 chips 與操作按鈕。
+ */
 @Composable
 private fun StatusDetailCard(
     title: String,
@@ -934,6 +1036,9 @@ private fun StatusDetailCard(
     }
 }
 
+/**
+ * 健康檢查項目的標準卡片，顯示說明、健康度與修正入口。
+ */
 @Composable
 private fun HealthStatusCard(
     title: String,
@@ -978,6 +1083,9 @@ private fun HealthStatusCard(
     }
 }
 
+/**
+ * 健康資訊區塊的單列鍵值展示。
+ */
 @Composable
 private fun HealthRow(label: String, value: String) {
     Row(
@@ -990,6 +1098,9 @@ private fun HealthRow(label: String, value: String) {
     }
 }
 
+/**
+ * 用圓點快速表示健康與否。
+ */
 @Composable
 private fun StatusDot(healthy: Boolean) {
     Box(
@@ -1003,6 +1114,9 @@ private fun StatusDot(healthy: Boolean) {
     )
 }
 
+/**
+ * 依送達狀態套用不同色彩與文案的狀態標籤。
+ */
 @Composable
 private fun StatusChip(status: DeliveryStatus) {
     val (containerColor, text) = when (status) {
@@ -1010,6 +1124,7 @@ private fun StatusChip(status: DeliveryStatus) {
         DeliveryStatus.SENDING -> Color(0xFF3D5A80) to stringResource(R.string.delivery_status_sending)
         DeliveryStatus.DELIVERED -> Color(0xFF2A9D8F) to stringResource(R.string.delivery_status_delivered)
         DeliveryStatus.FAILED -> Color(0xFFE76F51) to stringResource(R.string.delivery_status_failed)
+        DeliveryStatus.FILTERED -> Color(0xFF7A6C5D) to stringResource(R.string.delivery_status_filtered)
     }
     Surface(
         shape = RoundedCornerShape(999.dp),
@@ -1024,6 +1139,9 @@ private fun StatusChip(status: DeliveryStatus) {
     }
 }
 
+/**
+ * 依目前權限與系統設定組合出最新的健康快照，畫面回前景時會重新整理。
+ */
 @Composable
 private fun rememberSystemHealthSnapshot(): SystemHealthSnapshot {
     val context = LocalContext.current
@@ -1033,7 +1151,7 @@ private fun rememberSystemHealthSnapshot(): SystemHealthSnapshot {
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                // Re-read permissions after bouncing out to Android settings screens.
+                // 從 Android 設定頁返回後，重新讀取權限與系統狀態。
                 refreshKey += 1
             }
         }
@@ -1065,11 +1183,17 @@ private fun rememberSystemHealthSnapshot(): SystemHealthSnapshot {
     )
 }
 
+/**
+ * 啟用導引完成的最低條件是：設定已足以轉傳，且 SMS 權限已取得。
+ */
 private fun isSetupComplete(
     settings: ForwarderSettings,
     healthSnapshot: SystemHealthSnapshot,
 ): Boolean = settings.canForward && healthSnapshot.smsPermissionGranted
 
+/**
+ * 依布林狀態選擇對應的顯示文案。
+ */
 private fun statusChip(
     enabled: Boolean,
     enabledText: String,

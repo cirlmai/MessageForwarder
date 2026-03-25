@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
 
 /**
- * Stores outbound API configuration in encrypted shared preferences.
+ * 以加密 SharedPreferences 保存轉發 API 與規則設定。
  */
 class SecureSettingsStore(context: Context) {
     private val sharedPreferences: SharedPreferences
@@ -41,12 +41,14 @@ class SecureSettingsStore(context: Context) {
         bearerToken = sharedPreferences.getString(KEY_BEARER_TOKEN, "").orEmpty(),
         additionalHeadersJson = sharedPreferences.getString(KEY_ADDITIONAL_HEADERS_JSON, "").orEmpty(),
         additionalPayloadJson = sharedPreferences.getString(KEY_ADDITIONAL_PAYLOAD_JSON, "").orEmpty(),
+        allowedSendersRaw = sharedPreferences.getString(KEY_ALLOWED_SENDERS_RAW, "").orEmpty(),
+        requiredKeywordsRaw = sharedPreferences.getString(KEY_REQUIRED_KEYWORDS_RAW, "").orEmpty(),
         appEnabled = sharedPreferences.getBoolean(KEY_APP_ENABLED, false),
         lastBootRestoreAt = sharedPreferences.getLong(KEY_LAST_BOOT_RESTORE_AT, 0L).takeIf { it > 0L },
     )
 
     fun observeSettings(): Flow<ForwarderSettings> = callbackFlow {
-        // Emit immediately so the UI can render the current state without waiting for a change.
+        // 先送出一次目前快照，讓 UI 不必等設定變更事件才有初始值。
         trySend(snapshot())
 
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -68,6 +70,8 @@ class SecureSettingsStore(context: Context) {
                 .putString(KEY_BEARER_TOKEN, settings.bearerToken.trim())
                 .putString(KEY_ADDITIONAL_HEADERS_JSON, settings.additionalHeadersJson.trim())
                 .putString(KEY_ADDITIONAL_PAYLOAD_JSON, settings.additionalPayloadJson.trim())
+                .putString(KEY_ALLOWED_SENDERS_RAW, settings.allowedSendersRaw.trim())
+                .putString(KEY_REQUIRED_KEYWORDS_RAW, settings.requiredKeywordsRaw.trim())
                 .putBoolean(KEY_APP_ENABLED, settings.appEnabled)
                 .apply()
         }
@@ -89,6 +93,8 @@ class SecureSettingsStore(context: Context) {
         private const val KEY_BEARER_TOKEN = "bearer_token"
         private const val KEY_ADDITIONAL_HEADERS_JSON = "additional_headers_json"
         private const val KEY_ADDITIONAL_PAYLOAD_JSON = "additional_payload_json"
+        private const val KEY_ALLOWED_SENDERS_RAW = "allowed_senders_raw"
+        private const val KEY_REQUIRED_KEYWORDS_RAW = "required_keywords_raw"
         private const val KEY_APP_ENABLED = "app_enabled"
         private const val KEY_LAST_BOOT_RESTORE_AT = "last_boot_restore_at"
     }

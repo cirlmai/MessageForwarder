@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+   自動備份規則範本，可依需求取消註解後再調整。
+   詳細說明請參考：
+   https://developer.android.com/guide/topics/data/autobackup
+   注意：API 31 以下的裝置不會使用這份檔案。
+   Android 12 之後的備份行為差異可參考：
+   https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
     <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <include domain="sharedpref" path="."/>
+    <exclude domain="sharedpref" path="device.xml"/>
+    -->
 </full-backup-content>

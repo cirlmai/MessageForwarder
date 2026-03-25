@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+   Android 12+ 的資料擷取規則範本，可依需求取消註解後再調整。
+   詳細說明請參考：
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
+        <!-- 透過 <include> 與 <exclude> 控制哪些資料可進入雲端備份。
         <include .../>
         <exclude .../>
         -->

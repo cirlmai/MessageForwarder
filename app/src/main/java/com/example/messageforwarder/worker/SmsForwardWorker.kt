@@ -9,7 +9,7 @@ import com.example.messageforwarder.data.remote.ApiCallResult
 import com.example.messageforwarder.model.ForwardRequestPayload
 
 /**
- * Drains the local queue one message at a time until nothing is left or a retry is needed.
+ * 逐筆清空本機待送佇列，直到送完或遇到需要稍後重試的情況。
  */
 class SmsForwardWorker(
     appContext: Context,
@@ -32,7 +32,7 @@ class SmsForwardWorker(
                     ),
                     statusCode = null,
                 )
-                // Keep the queue entry recorded, but stop retrying until the operator fixes settings.
+                // 保留佇列資料，但在設定修正前暫停重試，避免背景無限失敗。
                 return Result.success()
             }
 
@@ -72,7 +72,7 @@ class SmsForwardWorker(
                         failureMessage = result.message,
                         statusCode = result.statusCode,
                     )
-                    // A visible failure notification helps on managed devices that are not actively monitored.
+                    // 受管裝置未必有人持續盯著畫面，因此保留明顯失敗通知有助於排查。
                     container.forwardingNotifier.showDeliveryFailure(
                         sender = pending.sender,
                         message = result.message,

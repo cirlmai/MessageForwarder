@@ -8,12 +8,12 @@ import com.example.messageforwarder.data.settings.SecureSettingsStore
 import com.example.messageforwarder.notification.ForwardingNotifier
 
 /**
- * Small manual DI container so receivers, workers, and UI all resolve the same app services.
+ * 簡單的手動 DI 容器，讓 receiver、worker 與 UI 取得同一批 app 級服務實例。
  */
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
 
-    // Lazies keep startup cheap while still exposing process-wide singletons.
+    // 使用 lazy 可延後初始化，避免 app 啟動時一次建立所有單例服務。
     val database: MessageForwarderDatabase by lazy {
         MessageForwarderDatabase.create(appContext)
     }
@@ -40,5 +40,8 @@ class AppContainer(context: Context) {
     }
 }
 
+/**
+ * 讓任何 Context 都能安全取回 Application 內的依賴容器。
+ */
 val Context.appContainer: AppContainer
     get() = (applicationContext as MessageForwarderApplication).appContainer

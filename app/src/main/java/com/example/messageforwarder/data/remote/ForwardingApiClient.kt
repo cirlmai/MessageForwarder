@@ -14,13 +14,16 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
+/**
+ * 封裝 HTTP 呼叫結果，統一成功與失敗時要回傳給上層的資訊。
+ */
 sealed interface ApiCallResult {
     data class Success(val statusCode: Int) : ApiCallResult
     data class Failure(val message: String, val statusCode: Int? = null) : ApiCallResult
 }
 
 /**
- * Thin HTTP client that converts app settings into one outbound JSON request.
+ * 將 app 設定組裝成單次 HTTP JSON 請求的輕量客戶端。
  */
 class ForwardingApiClient(context: Context) {
     private val appContext = context.applicationContext
@@ -53,7 +56,7 @@ class ForwardingApiClient(context: Context) {
             requestMethod = settings.httpMethod.name
             connectTimeout = TIMEOUT_MS
             readTimeout = TIMEOUT_MS
-            // GET should stay body-less because many servers and proxies treat GET bodies inconsistently.
+            // GET 不送 body，避免不同伺服器或代理對 GET body 的行為不一致。
             doOutput = settings.httpMethod.supportsRequestBody
         }
         buildHeaders(settings, payload).forEach { (key, value) ->
@@ -137,7 +140,7 @@ class ForwardingApiClient(context: Context) {
             settings.additionalPayloadJson,
             payload,
         )
-        // Custom payload fields intentionally win so the caller can reshape the final contract.
+        // 自訂 payload 欄位刻意覆蓋預設欄位，讓呼叫方可重塑最終 API 契約。
         additionalPayload.keys().forEach { key ->
             requestJson.put(key, additionalPayload.opt(key))
         }

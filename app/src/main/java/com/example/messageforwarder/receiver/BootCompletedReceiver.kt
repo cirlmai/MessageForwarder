@@ -11,7 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Restores background delivery after a reboot without rescanning historical inbox messages.
+ * 裝置重開機後恢復背景轉送能力，但不回頭掃描歷史收件匣。
  */
 class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -22,7 +22,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 appContext.appContainer.forwardingRepository.markBootRestore(System.currentTimeMillis())
-                // Existing pending rows are enough to resume retries after boot.
+                // 只要保留既有待送列，就足以在開機後恢復重試流程。
                 SmsForwardWorkScheduler.enqueue(appContext)
             } finally {
                 pendingResult.finish()

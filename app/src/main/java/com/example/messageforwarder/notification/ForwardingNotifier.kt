@@ -14,7 +14,7 @@ import com.example.messageforwarder.MainActivity
 import com.example.messageforwarder.R
 
 /**
- * Posts user-visible alerts when queued deliveries fail and need operator attention.
+ * 當待送簡訊失敗且需要人工介入時，發送使用者可見通知。
  */
 class ForwardingNotifier(private val context: Context) {
     fun ensureChannels() {

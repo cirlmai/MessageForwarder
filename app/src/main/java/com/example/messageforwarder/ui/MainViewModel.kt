@@ -28,6 +28,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * 主畫面需要的長生命週期 UI 狀態，會隨著設定、紀錄與儀表板資料更新。
+ */
 data class MainUiState(
     val settings: ForwarderSettings = ForwarderSettings(),
     val dashboard: DashboardSnapshot = DashboardSnapshot(),
@@ -35,12 +38,15 @@ data class MainUiState(
     val isTestingConnection: Boolean = false,
 )
 
+/**
+ * 僅存在畫面生命週期內的暫態 UI 狀態，不需要持久化。
+ */
 private data class TransientState(
     val isTestingConnection: Boolean = false,
 )
 
 /**
- * Owns the screen state, validates operator input, and schedules sync work.
+ * 管理畫面狀態、驗證操作人員輸入，並在需要時排程背景同步工作。
  */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as MessageForwarderApplication
@@ -78,7 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.saveSettings(normalizedSettings)
             if (normalizedSettings.canForward) {
-                // Saving valid settings can immediately unblock queued retries.
+                // 有效設定一旦存檔，就可能立刻解除既有待送訊息的阻塞。
                 SmsForwardWorkScheduler.enqueue(getApplication())
             }
             _messages.emit(string(R.string.message_settings_saved))
@@ -97,7 +103,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun retryMessage(messageFingerprint: String) {
         viewModelScope.launch {
-            val requeued = repository.requeueFailedMessage(messageFingerprint)
+            val requeued = repository.queueMessageForResend(messageFingerprint)
             if (requeued) {
                 SmsForwardWorkScheduler.enqueue(getApplication())
                 _messages.emit(string(R.string.message_requeued))
@@ -114,7 +120,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // The test path reuses the production HTTP client so UI validation matches real delivery behavior.
+        // 測試路徑直接重用正式 HTTP client，讓 UI 驗證結果與實際轉送行為一致。
         _transientState.update { it.copy(isTestingConnection = true) }
         viewModelScope.launch {
             val context = getApplication<Application>()
@@ -182,15 +188,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun string(@StringRes resId: Int, vararg args: Any): String =
         getApplication<Application>().getString(resId, *args)
 
-    // Trim user input once before persistence so every caller sees the same normalized values.
+    // 在持久化前統一裁掉空白，確保所有呼叫端看到的都是同一份正規化結果。
     private fun ForwarderSettings.normalized(): ForwarderSettings = copy(
         apiUrl = apiUrl.trim(),
         bearerToken = bearerToken.trim(),
         additionalHeadersJson = additionalHeadersJson.trim(),
         additionalPayloadJson = additionalPayloadJson.trim(),
+        allowedSendersRaw = allowedSendersRaw.trim(),
+        requiredKeywordsRaw = requiredKeywordsRaw.trim(),
     )
 
     companion object {
+        /**
+         * 讓 Compose 與 Activity 端都能用同一套方式建立 ViewModel。
+         */
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 MainViewModel(this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application)

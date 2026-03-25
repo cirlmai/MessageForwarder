@@ -2,6 +2,7 @@ package com.example.messageforwarder.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// App icon 與主要頁面風格共用的品牌色票。
 val DeepCurrent = Color(0xFF0B3954)
 val SignalMint = Color(0xFF7AE582)
 val EmberHighlight = Color(0xFFFFB347)

@@ -11,7 +11,7 @@ import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 /**
- * Ensures there is at most one active background flush job for the pending queue.
+ * 確保同一時間最多只有一個背景 worker 在清空待送佇列。
  */
 object SmsForwardWorkScheduler {
     private const val UNIQUE_WORK_NAME = "forward_pending_sms"
@@ -34,7 +34,7 @@ object SmsForwardWorkScheduler {
         WorkManager.getInstance(context)
             .enqueueUniqueWork(
                 UNIQUE_WORK_NAME,
-                // KEEP prevents multiple broadcasts from spawning duplicate workers for the same queue.
+                // KEEP 可避免多次廣播同時為同一批待送資料啟動重複 worker。
                 ExistingWorkPolicy.KEEP,
                 request,
             )

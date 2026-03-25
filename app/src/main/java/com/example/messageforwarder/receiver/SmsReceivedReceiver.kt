@@ -13,7 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Receives new incoming SMS broadcasts, persists them quickly, and hands network work to WorkManager.
+ * 接收新進簡訊廣播，先快速寫入本機，再把網路工作交給 WorkManager。
  */
 class SmsReceivedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -28,9 +28,12 @@ class SmsReceivedReceiver : BroadcastReceiver() {
                 if (!settings.canForward) return@launch
 
                 val event = SmsParser.fromIntent(appContext, intent) ?: return@launch
-                val inserted = container.forwardingRepository.enqueueIncomingMessage(event)
+                val inserted = container.forwardingRepository.enqueueIncomingMessage(
+                    event = event,
+                    settings = settings,
+                )
                 if (inserted) {
-                    // The receiver stays fast: database first, HTTP work later.
+                    // Receiver 只做最短路徑工作：先落地資料，HTTP 轉送延後到背景任務處理。
                     SmsForwardWorkScheduler.enqueue(appContext)
                 }
             } finally {

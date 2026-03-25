@@ -16,7 +16,7 @@ import com.example.messageforwarder.ui.MessageForwarderApp
 import com.example.messageforwarder.ui.theme.MessageForwarderTheme
 
 /**
- * Hosts the single-activity Compose UI and bridges runtime permission / settings intents.
+ * 承載單一 Activity 的 Compose UI，並負責串接執行期權限與系統設定頁跳轉。
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
         dataUri: String? = null,
         extras: Map<String, String> = emptyMap(),
     ) {
+        // 所有外部設定頁導向都集中在這裡，避免畫面層直接操作 Intent 細節。
         val intent = Intent(action).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             dataUri?.let { data = android.net.Uri.parse(it) }

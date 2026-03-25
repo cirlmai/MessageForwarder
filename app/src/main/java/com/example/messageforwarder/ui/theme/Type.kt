@@ -6,6 +6,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+/**
+ * App 目前使用的基本字體層級設定。
+ */
 val Typography = Typography(
     headlineSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,

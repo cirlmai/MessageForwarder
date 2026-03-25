@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * Builds a stable id for deduplicating repeated SMS broadcasts.
+ * 產生穩定的簡訊指紋，用來去除重複廣播或多段訊息重入。
  */
 object SmsFingerprint {
     fun create(
@@ -31,7 +31,7 @@ object SmsFingerprint {
 }
 
 /**
- * Keeps sensitive message previews readable without showing the full SMS on screen.
+ * 在不顯示完整簡訊的前提下，保留部分可辨識內容供畫面預覽。
  */
 object MessageMasker {
     fun maskSmsBody(body: String, emptyLabel: String): String {
@@ -53,7 +53,7 @@ object MessageMasker {
 }
 
 /**
- * The app intentionally forwards only to HTTPS endpoints.
+ * App 僅允許轉送到 HTTPS 端點。
  */
 object HttpsUrlValidator {
     fun isValid(url: String): Boolean {
@@ -68,7 +68,7 @@ object HttpsUrlValidator {
 }
 
 /**
- * Guards the free-form header/payload editors from invalid JSON object input.
+ * 驗證使用者輸入的自訂 header / payload 是否為合法 JSON 物件。
  */
 object JsonConfigValidator {
     fun isValidJsonObject(rawValue: String): Boolean {
@@ -84,7 +84,102 @@ object JsonConfigValidator {
 }
 
 /**
- * Replaces {{placeholders}} inside custom headers or payload fragments with SMS values.
+ * 紀錄已收訊但未轉傳的原因。
+ */
+enum class ForwardingRuleMismatch {
+    SENDER,
+    KEYWORD,
+    SENDER_AND_KEYWORD,
+}
+
+data class ForwardingRuleDecision(
+    val shouldForward: Boolean,
+    val mismatch: ForwardingRuleMismatch? = null,
+)
+
+/**
+ * 在簡訊進入待送佇列前，先依寄件人與內容規則判斷是否允許轉傳。
+ */
+object ForwardingRuleMatcher {
+    private val entrySeparator = "[,;\\n]+".toRegex()
+
+    fun parseEntries(rawValue: String): List<String> = rawValue
+        .split(entrySeparator)
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+
+    fun evaluate(
+        sender: String,
+        body: String,
+        allowedSendersRaw: String,
+        requiredKeywordsRaw: String,
+    ): ForwardingRuleDecision {
+        val allowedSenders = parseEntries(allowedSendersRaw)
+        val requiredKeywords = parseEntries(requiredKeywordsRaw)
+        val senderMatches = allowedSenders.isEmpty() || matchesSender(sender, allowedSenders)
+        val keywordMatches = requiredKeywords.isEmpty() || matchesKeyword(body, requiredKeywords)
+
+        val mismatch = when {
+            senderMatches && keywordMatches -> null
+            !senderMatches && !keywordMatches -> ForwardingRuleMismatch.SENDER_AND_KEYWORD
+            !senderMatches -> ForwardingRuleMismatch.SENDER
+            else -> ForwardingRuleMismatch.KEYWORD
+        }
+        return ForwardingRuleDecision(
+            shouldForward = mismatch == null,
+            mismatch = mismatch,
+        )
+    }
+
+    private fun matchesSender(sender: String, allowedSenders: List<String>): Boolean {
+        val senderForms = normalizedSenderForms(sender)
+        return allowedSenders.any { candidate ->
+            normalizedSenderForms(candidate).any(senderForms::contains)
+        }
+    }
+
+    private fun matchesKeyword(body: String, requiredKeywords: List<String>): Boolean =
+        requiredKeywords.any { keyword -> body.contains(keyword, ignoreCase = true) }
+
+    private fun normalizedSenderForms(value: String): Set<String> {
+        val trimmed = value.trim()
+        if (trimmed.isBlank()) return emptySet()
+
+        val forms = linkedSetOf(
+            trimmed.lowercase(Locale.ROOT),
+            trimmed.replace("\\s+".toRegex(), "").lowercase(Locale.ROOT),
+            trimmed.replace("[\\s()\\-]".toRegex(), "").lowercase(Locale.ROOT),
+        )
+
+        val digitsOnly = trimmed.filter(Char::isDigit)
+        if (digitsOnly.isNotBlank()) {
+            forms += digitsOnly
+            normalizeTaiwanPhone(digitsOnly)?.let(forms::add)
+        }
+
+        val plusDigits = buildString {
+            trimmed.forEachIndexed { index, char ->
+                if (char.isDigit() || (index == 0 && char == '+')) {
+                    append(char)
+                }
+            }
+        }
+        if (plusDigits.length > 1) {
+            forms += plusDigits
+        }
+
+        return forms.filter(String::isNotBlank).toSet()
+    }
+
+    private fun normalizeTaiwanPhone(digitsOnly: String): String? = when {
+        digitsOnly.startsWith("886") && digitsOnly.length >= 11 -> "0${digitsOnly.removePrefix("886")}"
+        digitsOnly.startsWith("0") -> digitsOnly
+        else -> null
+    }
+}
+
+/**
+ * 將自訂 header / payload 內的 {{placeholder}} 替換為實際簡訊欄位值。
  */
 object JsonTemplateResolver {
     private val placeholderPattern = "\\{\\{\\s*([a-zA-Z0-9_]+)\\s*\\}\\}".toRegex()
@@ -139,7 +234,7 @@ object JsonTemplateResolver {
 }
 
 /**
- * Device/app values that become part of each outbound event payload.
+ * 收集每次轉送事件都需要附帶的裝置與 App 資訊。
  */
 object DeviceMetadata {
     fun getAndroidId(context: Context): String {
@@ -161,7 +256,7 @@ object DeviceMetadata {
 }
 
 /**
- * Shared timestamp formatter for dashboard and logs.
+ * 儀表板與紀錄頁共用的時間格式化工具。
  */
 object AppTimeFormatter {
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.getDefault())

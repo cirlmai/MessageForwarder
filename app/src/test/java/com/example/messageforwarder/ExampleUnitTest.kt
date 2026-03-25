@@ -1,6 +1,8 @@
 package com.example.messageforwarder
 
 import com.example.messageforwarder.model.ForwardRequestPayload
+import com.example.messageforwarder.util.ForwardingRuleMatcher
+import com.example.messageforwarder.util.ForwardingRuleMismatch
 import com.example.messageforwarder.util.HttpsUrlValidator
 import com.example.messageforwarder.util.JsonTemplateResolver
 import com.example.messageforwarder.util.MessageMasker
@@ -11,6 +13,9 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * 核心工具邏輯的單元測試，覆蓋網址驗證、模板替換、遮罩與規則判斷。
+ */
 class ExampleUnitTest {
     @Test
     fun `https validator accepts secure urls only`() {
@@ -67,5 +72,43 @@ class ExampleUnitTest {
         )
 
         assertEquals("Your OTP is 123456", resolved)
+    }
+
+    @Test
+    fun `forwarding rules allow all senders and bodies when filters are empty`() {
+        val decision = ForwardingRuleMatcher.evaluate(
+            sender = "Bank",
+            body = "Your OTP is 123456",
+            allowedSendersRaw = "",
+            requiredKeywordsRaw = "",
+        )
+
+        assertTrue(decision.shouldForward)
+        assertEquals(null, decision.mismatch)
+    }
+
+    @Test
+    fun `forwarding rules match Taiwan phone variants and comma separated keywords`() {
+        val decision = ForwardingRuleMatcher.evaluate(
+            sender = "+886 912-345-678",
+            body = "Use this verification code to continue",
+            allowedSendersRaw = "0912345678,MyBank",
+            requiredKeywordsRaw = "OTP,verification code",
+        )
+
+        assertTrue(decision.shouldForward)
+    }
+
+    @Test
+    fun `forwarding rules require sender and keyword when both filters are configured`() {
+        val decision = ForwardingRuleMatcher.evaluate(
+            sender = "PromoSender",
+            body = "Weekly sale update",
+            allowedSendersRaw = "BankAlert",
+            requiredKeywordsRaw = "OTP\nverification code",
+        )
+
+        assertFalse(decision.shouldForward)
+        assertEquals(ForwardingRuleMismatch.SENDER_AND_KEYWORD, decision.mismatch)
     }
 }

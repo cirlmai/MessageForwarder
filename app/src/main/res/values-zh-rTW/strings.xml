@@ -28,11 +28,14 @@
     <string name="error_network_request_failed">網路請求失敗。</string>
     <string name="worker_error_forwarding_disabled_or_incomplete">轉傳功能已停用，或 API 設定尚未完成。</string>
     <string name="log_retry_queued">已加入重試佇列。</string>
+    <string name="log_filtered_sender_mismatch">未轉傳：寄件人不符合設定的號碼規則。</string>
+    <string name="log_filtered_keyword_mismatch">未轉傳：簡訊內容不包含設定的關鍵字。</string>
+    <string name="log_filtered_sender_and_keyword_mismatch">未轉傳：寄件人與簡訊內容都不符合轉傳規則。</string>
 
     <string name="message_settings_saved">設定已儲存。</string>
     <string name="message_forwarding_sync_scheduled">已安排轉傳同步。</string>
-    <string name="message_requeued">訊息已重新加入佇列。</string>
-    <string name="message_requeue_failed">無法重新加入該訊息。</string>
+    <string name="message_requeued">訊息已加入再次發送佇列。</string>
+    <string name="message_requeue_failed">此訊息無法加入再次發送佇列。</string>
     <string name="message_connection_test_body">來自簡訊轉傳器的連線測試</string>
     <string name="message_connection_test_succeeded">連線測試成功（HTTP %1$d）。</string>
     <string name="message_connection_test_failed">連線測試失敗：%1$s</string>
@@ -71,7 +74,9 @@
     <string name="action_save_settings">儲存設定</string>
     <string name="action_test_connection">測試連線</string>
     <string name="action_testing">測試中...</string>
-    <string name="action_retry_delivery">重新轉送</string>
+    <string name="action_retry_delivery">再次發送</string>
+    <string name="action_show_full_sms">顯示完整簡訊</string>
+    <string name="action_hide_full_sms">隱藏完整簡訊</string>
     <string name="action_open_notification_settings">開啟通知設定</string>
     <string name="action_open_app_details">開啟 App 詳細資料</string>
 
@@ -112,6 +117,14 @@
     <string name="settings_additional_payload_placeholder">{&quot;username&quot;:&quot;demo-bot&quot;,&quot;channel&quot;:&quot;demo-channel-id&quot;,&quot;text&quot;:&quot;{{body}}&quot;}</string>
     <string name="settings_payload_with_body_description">系統會先帶入核心 SMS 欄位，再把額外 payload JSON 合併到同一層物件中；若 key 重複，會以你填的值覆蓋。可使用 {{body}}、{{sender}}、{{messageId}} 等模板。</string>
     <string name="settings_payload_get_description">GET 不會送 JSON body，額外 payload JSON 也會被忽略。</string>
+    <string name="settings_rules_title">轉傳規則</string>
+    <string name="settings_rules_description">兩個欄位都留空時會轉傳所有簡訊。若兩者都有設定，簡訊必須同時符合號碼與關鍵字規則才會轉傳。</string>
+    <string name="settings_allowed_senders_label">允許轉傳的號碼或寄件人</string>
+    <string name="settings_allowed_senders_placeholder">+886912345678\nMyBank</string>
+    <string name="settings_allowed_senders_help">選填。只做精確寄件人比對。可一行一筆，也可用逗號分隔多筆。</string>
+    <string name="settings_keywords_label">內容關鍵字</string>
+    <string name="settings_keywords_placeholder">OTP\n驗證碼</string>
+    <string name="settings_keywords_help">選填。只要簡訊內容包含任一關鍵字就視為符合，且不區分英文大小寫。</string>
     <string name="settings_forwarding_enabled_label">啟用轉傳</string>
     <string name="settings_forwarding_enabled_description">只有在此開關開啟時，receiver 才會把新簡訊加入佇列。</string>
 
@@ -145,4 +158,5 @@
     <string name="delivery_status_sending">傳送中</string>
     <string name="delivery_status_delivered">已送達</string>
     <string name="delivery_status_failed">失敗</string>
+    <string name="delivery_status_filtered">已過濾</string>
 </resources>

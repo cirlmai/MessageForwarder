@@ -17,23 +17,27 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 /**
- * High-level delivery states shown in the log UI.
+ * 紀錄頁與狀態頁會顯示的高階轉送狀態。
  */
 enum class DeliveryStatus {
     RECEIVED,
     SENDING,
     DELIVERED,
     FAILED,
+    FILTERED,
 }
 
 @Entity(
     tableName = "pending_forwards",
     indices = [Index(value = ["messageFingerprint"], unique = true)],
 )
+/**
+ * 尚未成功送達 API 的待轉送佇列資料。
+ */
 data class PendingForwardEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    // Fingerprint deduplicates multipart or repeated broadcasts for the same SMS.
+    // Fingerprint 用來避免同一封多段簡訊或重複廣播被重複入列。
     val messageFingerprint: String,
     val sender: String,
     val body: String,
@@ -51,6 +55,9 @@ data class PendingForwardEntity(
     tableName = "delivery_logs",
     indices = [Index(value = ["messageFingerprint"], unique = true)],
 )
+/**
+ * 完整保留每封簡訊處理結果的歷程紀錄，用於畫面查詢與人工補送。
+ */
 data class DeliveryLogEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -79,7 +86,7 @@ class DeliveryStatusConverters {
 }
 
 /**
- * Queue table for messages that still need an HTTP delivery attempt.
+ * 管理待轉送佇列表的 DAO。
  */
 @Dao
 interface PendingForwardDao {
@@ -103,7 +110,7 @@ interface PendingForwardDao {
 }
 
 /**
- * Immutable-ish audit trail shown in the logs screen and dashboard summaries.
+ * 管理送達紀錄表的 DAO，提供畫面查詢與狀態更新。
  */
 @Dao
 interface DeliveryLogDao {
@@ -132,6 +139,9 @@ interface DeliveryLogDao {
     exportSchema = false,
 )
 @TypeConverters(DeliveryStatusConverters::class)
+/**
+ * App 使用的 Room 資料庫，包含待送佇列與歷程紀錄兩張表。
+ */
 abstract class MessageForwarderDatabase : RoomDatabase() {
     abstract fun pendingForwardDao(): PendingForwardDao
     abstract fun deliveryLogDao(): DeliveryLogDao
@@ -143,7 +153,7 @@ abstract class MessageForwarderDatabase : RoomDatabase() {
                 MessageForwarderDatabase::class.java,
                 "message-forwarder.db",
             )
-                // A schema reset is acceptable for this internal v1 tool while the model is still moving.
+                // 這是內部使用的 v1 工具，模型仍在變動，允許以重建資料庫換取快速迭代。
                 .fallbackToDestructiveMigration()
                 .build()
     }
